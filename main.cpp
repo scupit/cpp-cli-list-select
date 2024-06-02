@@ -52,14 +52,21 @@ PromptResult doPrompt(const std::string&              prompt,
           ->length());
 
   int  selectedIndex = 0;
+  bool wasKilled     = true;
   auto screen        = ftxui::ScreenInteractive::TerminalOutput(std::cerr);
-
-  bool wasKilled = true;
 
   auto menu = ftxui::Menu(&optionList, &selectedIndex)
               | ftxui::CatchEvent([&wasKilled, &screen](ftxui::Event event) {
                   if (event == ftxui::Event::Return) {
                     wasKilled = false;
+                    screen.Exit();
+                    return true;
+                  }
+                  
+                  // Provides an exit system for PowerShell, which doesn't seem to send
+                  // an abort signal when using Ctrl+C. See the comment lower down about
+                  // the mouse tracking not being turned off.
+                  if (event == ftxui::Event::Escape) {
                     screen.Exit();
                     return true;
                   }
@@ -75,6 +82,13 @@ PromptResult doPrompt(const std::string&              prompt,
            | ftxui::vscroll_indicator;
   });
 
+  // When running the executable from a separate PowerShell script, the
+  // terminal's mouse tracking functionality is never turned off when the
+  // program is stopped. I have no idea why this would be the case,
+  // but since I'm using this with arrow keys only anyways, I'm just
+  // going to disable mouse tracking altogether.
+  // screen.TrackMouse(false);
   screen.Loop(window);
+
   return {wasKilled, selectedIndex};
 }
