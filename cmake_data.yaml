@@ -4,7 +4,7 @@ description: Simple CLI for selecting a single item from a list
 vendor: scupit
 version: 0.0.1
 
-default_build_type: Debug
+default_build_type: Release
 
 languages:
   cpp:
@@ -16,11 +16,11 @@ supported_compilers:
   - MSVC
 
 output:
-  basic-list-select:
+  list-select:
     output_type: Executable
     entry_file: main.cpp
     link:
-      - ftxui::component
+      - ftxui::{ component, dom }
 
 global_properties:
   ipo_enabled_by_default_for:
@@ -30,7 +30,10 @@ global_properties:
 
 predefined_dependencies:
   ftxui:
-    git_tag: v5.0.0
+    # Using my fork with support for using std::cerr for output.
+    # This is so I can pipe the results on stdout to other commands.
+    repo_url: git@github.com:scupit/FTXUI.git
+    git_tag: other-stream-support
 
 build_configs:
   Debug:

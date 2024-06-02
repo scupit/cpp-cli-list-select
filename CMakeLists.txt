@@ -87,7 +87,7 @@ else()
 	set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${PROJECT_VALID_BUILD_TYPES} )
 
 	if( NOT "${CMAKE_BUILD_TYPE}" IN_LIST ALL_VALID_BUILD_TYPES )
-		set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "${LOCAL_CMAKE_BUILD_TYPE_DOC_STRING}" FORCE )
+		set( CMAKE_BUILD_TYPE "Release" CACHE STRING "${LOCAL_CMAKE_BUILD_TYPE_DOC_STRING}" FORCE )
 	endif()
 
 	message( "Building configuration: ${CMAKE_BUILD_TYPE}" )
@@ -123,9 +123,10 @@ initialize_ipo_defaults( RELEASE MINSIZEREL RELWITHDEBINFO )
 initialize_pgo_defaults()
 initialize_install_mode()
 if( TOPLEVEL_PROJECT_DIR STREQUAL CMAKE_SOURCE_DIR AND ( GCMAKE_INSTALL_MODE STREQUAL "NORMAL" OR GCMAKE_INSTALL_MODE STREQUAL "EXE_ONLY"  ) )
-	mark_gcmake_target_usage( basic-list-select FULL )
+	mark_gcmake_target_usage( list-select FULL )
 endif()
-if( (TRUE) AND (( NOT CMAKE_SOURCE_DIR STREQUAL TOPLEVEL_PROJECT_DIR AND DEFINED TARGET_basic-list-select_INSTALL_MODE ) OR (CMAKE_SOURCE_DIR STREQUAL TOPLEVEL_PROJECT_DIR AND (GCMAKE_INSTALL_MODE STREQUAL "NORMAL" OR GCMAKE_INSTALL_MODE STREQUAL "EXE_ONLY" )) ) )
+if( (TRUE) AND (( NOT CMAKE_SOURCE_DIR STREQUAL TOPLEVEL_PROJECT_DIR AND DEFINED TARGET_list-select_INSTALL_MODE ) OR (CMAKE_SOURCE_DIR STREQUAL TOPLEVEL_PROJECT_DIR AND (GCMAKE_INSTALL_MODE STREQUAL "NORMAL" OR GCMAKE_INSTALL_MODE STREQUAL "EXE_ONLY" )) ) )
+	mark_gcmake_project_usage( ftxui MINIMAL )
 	mark_gcmake_project_usage( ftxui MINIMAL )
 endif()
 if( NOT DEFINED ${LOCAL_TOPLEVEL_PROJECT_NAME}_USE_DEFAULT_FEATURES )
@@ -148,7 +149,7 @@ endif()
 # ////////////////////////////////////////////////////////////////////////////////
 # Predefined dependency config
 # ////////////////////////////////////////////////////////////////////////////////
-if( (DEFINED TARGET_basic-list-select_INSTALL_MODE AND (TRUE)) )
+if( (DEFINED TARGET_list-select_INSTALL_MODE AND (TRUE)) )
 option( FTXUI_BUILD_DOCS "Set to ON to build FTXUI docs. GCMake sets this to OFF by default." OFF )
 option( FTXUI_BUILD_EXAMPLES "Set to ON to build FTXUI examples. GCMake sets this to OFF by default." OFF )
 
@@ -162,14 +163,14 @@ option( FTXUI_ENABLE_INSTALL "Whether to install ftxui. GCMake sets this to ${FT
 CPMAddPackage(
 	NAME ftxui
 	DOWNLOAD_ONLY OFF
-	GIT_REPOSITORY "git@github.com:ArthurSonzogni/FTXUI.git"
-	GIT_TAG "v5.0.0"
+	GIT_REPOSITORY "git@github.com:scupit/FTXUI.git"
+	GIT_TAG "other-stream-support"
 	GIT_SUBMODULES_RECURSE TRUE
 	SYSTEM
 )
 append_to_actual_dep_list( ftxui )
 endif()
-if( (DEFINED TARGET_basic-list-select_INSTALL_MODE AND (TRUE)) )
+if( (DEFINED TARGET_list-select_INSTALL_MODE AND (TRUE)) )
 endif()
 set( DEPENDENCY_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" )
 if( NOT TARGET_SYSTEM_IS_WINDOWS )
@@ -367,108 +368,115 @@ set( basic-list-select_TEMPLATE_IMPLS
 )
 
 list( APPEND basic-list-select_HEADERS ${basic-list-select_TEMPLATE_IMPLS} )
-if( DEFINED TARGET_basic-list-select_INSTALL_MODE AND (TRUE) )
+if( DEFINED TARGET_list-select_INSTALL_MODE AND (TRUE) )
 
-# ========== basic-list-select ==========
-add_library( basic-list-select_INTERNAL_RECEIVER_LIB INTERFACE )
+# ========== list-select ==========
+add_library( list-select_INTERNAL_RECEIVER_LIB INTERFACE )
 
-add_executable( basic-list-select )
-add_executable( basic-list-select::basic-list-select ALIAS basic-list-select )
+add_executable( list-select )
+add_executable( basic-list-select::list-select ALIAS list-select )
 
 if( USING_EMSCRIPTEN )
-	apply_emscripten_specifics( basic-list-select_INTERNAL_RECEIVER_LIB basic-list-select )
+	apply_emscripten_specifics( list-select_INTERNAL_RECEIVER_LIB list-select )
 endif()
-exe_add_lib_relative_install_rpath( basic-list-select )
-if( DEFINED TARGET_basic-list-select_INSTALL_MODE )
-	add_to_target_installation_list( basic-list-select )
+exe_add_lib_relative_install_rpath( list-select )
+if( DEFINED TARGET_list-select_INSTALL_MODE )
+	add_to_target_installation_list( list-select )
 endif()
-gcmake_apply_include_dirs( basic-list-select_INTERNAL_RECEIVER_LIB EXE_RECEIVER "${basic-list-select_INCLUDE_DIR}" "${basic-list-select_PRIVATE_INCLUDE_DIR}" )
-gcmake_apply_exe_files( basic-list-select basic-list-select_INTERNAL_RECEIVER_LIB 
+gcmake_apply_include_dirs( list-select_INTERNAL_RECEIVER_LIB EXE_RECEIVER "${basic-list-select_INCLUDE_DIR}" "${basic-list-select_PRIVATE_INCLUDE_DIR}" )
+gcmake_apply_exe_files( list-select list-select_INTERNAL_RECEIVER_LIB 
 	"${basic-list-select_ENTRY_ROOT}/main.cpp"
 	basic-list-select_SOURCES
 	basic-list-select_HEADERS
 )
 
-set_target_properties( basic-list-select PROPERTIES
+set_target_properties( list-select PROPERTIES
 	CXX_EXTENSIONS OFF
 	C_EXTENSIONS OFF
 	RUNTIME_OUTPUT_DIRECTORY ${MY_RUNTIME_OUTPUT_DIR}
 )
 
 if( ( USING_MINGW ) )
-	set_target_properties( basic-list-select PROPERTIES 
+	set_target_properties( list-select PROPERTIES 
 		NO_SYSTEM_FROM_IMPORTED TRUE
 	)
 endif()
 
-add_depends_on_pre_build( basic-list-select_INTERNAL_RECEIVER_LIB )
-add_depends_on_pre_build( basic-list-select )
-set( basic-list-select_DEBUG_OWN_LINK_FLAGS "${DEBUG_LOCAL_LINK_FLAGS}" )
-set( basic-list-select_DEBUG_OWN_COMPILER_FLAGS "${DEBUG_LOCAL_COMPILER_FLAGS}" )
-set( basic-list-select_DEBUG_OWN_CUDA_FLAGS "${DEBUG_LOCAL_CUDA_FLAGS}" )
-set( basic-list-select_DEBUG_OWN_DEFINES "${DEBUG_LOCAL_DEFINES}" )
-set( basic-list-select_RELEASE_OWN_LINK_FLAGS "${RELEASE_LOCAL_LINK_FLAGS}" )
-set( basic-list-select_RELEASE_OWN_COMPILER_FLAGS "${RELEASE_LOCAL_COMPILER_FLAGS}" )
-set( basic-list-select_RELEASE_OWN_CUDA_FLAGS "${RELEASE_LOCAL_CUDA_FLAGS}" )
-set( basic-list-select_RELEASE_OWN_DEFINES "${RELEASE_LOCAL_DEFINES}" )
-set( basic-list-select_MINSIZEREL_OWN_LINK_FLAGS "${MINSIZEREL_LOCAL_LINK_FLAGS}" )
-set( basic-list-select_MINSIZEREL_OWN_COMPILER_FLAGS "${MINSIZEREL_LOCAL_COMPILER_FLAGS}" )
-set( basic-list-select_MINSIZEREL_OWN_CUDA_FLAGS "${MINSIZEREL_LOCAL_CUDA_FLAGS}" )
-set( basic-list-select_MINSIZEREL_OWN_DEFINES "${MINSIZEREL_LOCAL_DEFINES}" )
-set( basic-list-select_RELWITHDEBINFO_OWN_LINK_FLAGS "${RELWITHDEBINFO_LOCAL_LINK_FLAGS}" )
-set( basic-list-select_RELWITHDEBINFO_OWN_COMPILER_FLAGS "${RELWITHDEBINFO_LOCAL_COMPILER_FLAGS}" )
-set( basic-list-select_RELWITHDEBINFO_OWN_CUDA_FLAGS "${RELWITHDEBINFO_LOCAL_CUDA_FLAGS}" )
-set( basic-list-select_RELWITHDEBINFO_OWN_DEFINES "${RELWITHDEBINFO_LOCAL_DEFINES}" )
-target_compile_definitions( basic-list-select_INTERNAL_RECEIVER_LIB
+add_depends_on_pre_build( list-select_INTERNAL_RECEIVER_LIB )
+add_depends_on_pre_build( list-select )
+set( list-select_DEBUG_OWN_LINK_FLAGS "${DEBUG_LOCAL_LINK_FLAGS}" )
+set( list-select_DEBUG_OWN_COMPILER_FLAGS "${DEBUG_LOCAL_COMPILER_FLAGS}" )
+set( list-select_DEBUG_OWN_CUDA_FLAGS "${DEBUG_LOCAL_CUDA_FLAGS}" )
+set( list-select_DEBUG_OWN_DEFINES "${DEBUG_LOCAL_DEFINES}" )
+set( list-select_RELEASE_OWN_LINK_FLAGS "${RELEASE_LOCAL_LINK_FLAGS}" )
+set( list-select_RELEASE_OWN_COMPILER_FLAGS "${RELEASE_LOCAL_COMPILER_FLAGS}" )
+set( list-select_RELEASE_OWN_CUDA_FLAGS "${RELEASE_LOCAL_CUDA_FLAGS}" )
+set( list-select_RELEASE_OWN_DEFINES "${RELEASE_LOCAL_DEFINES}" )
+set( list-select_MINSIZEREL_OWN_LINK_FLAGS "${MINSIZEREL_LOCAL_LINK_FLAGS}" )
+set( list-select_MINSIZEREL_OWN_COMPILER_FLAGS "${MINSIZEREL_LOCAL_COMPILER_FLAGS}" )
+set( list-select_MINSIZEREL_OWN_CUDA_FLAGS "${MINSIZEREL_LOCAL_CUDA_FLAGS}" )
+set( list-select_MINSIZEREL_OWN_DEFINES "${MINSIZEREL_LOCAL_DEFINES}" )
+set( list-select_RELWITHDEBINFO_OWN_LINK_FLAGS "${RELWITHDEBINFO_LOCAL_LINK_FLAGS}" )
+set( list-select_RELWITHDEBINFO_OWN_COMPILER_FLAGS "${RELWITHDEBINFO_LOCAL_COMPILER_FLAGS}" )
+set( list-select_RELWITHDEBINFO_OWN_CUDA_FLAGS "${RELWITHDEBINFO_LOCAL_CUDA_FLAGS}" )
+set( list-select_RELWITHDEBINFO_OWN_DEFINES "${RELWITHDEBINFO_LOCAL_DEFINES}" )
+target_compile_definitions( list-select_INTERNAL_RECEIVER_LIB
 	INTERFACE 
-		"$<$<CONFIG:Debug>:${basic-list-select_DEBUG_OWN_DEFINES}>"
-		"$<$<CONFIG:Release>:${basic-list-select_RELEASE_OWN_DEFINES}>"
-		"$<$<CONFIG:MinSizeRel>:${basic-list-select_MINSIZEREL_OWN_DEFINES}>"
-		"$<$<CONFIG:RelWithDebInfo>:${basic-list-select_RELWITHDEBINFO_OWN_DEFINES}>"
+		"$<$<CONFIG:Debug>:${list-select_DEBUG_OWN_DEFINES}>"
+		"$<$<CONFIG:Release>:${list-select_RELEASE_OWN_DEFINES}>"
+		"$<$<CONFIG:MinSizeRel>:${list-select_MINSIZEREL_OWN_DEFINES}>"
+		"$<$<CONFIG:RelWithDebInfo>:${list-select_RELWITHDEBINFO_OWN_DEFINES}>"
 )
 
-target_link_options( basic-list-select
+target_link_options( list-select
 	PRIVATE 
-		"$<$<CONFIG:Debug>:${basic-list-select_DEBUG_OWN_LINK_FLAGS}>"
-		"$<$<CONFIG:Release>:${basic-list-select_RELEASE_OWN_LINK_FLAGS}>"
-		"$<$<CONFIG:MinSizeRel>:${basic-list-select_MINSIZEREL_OWN_LINK_FLAGS}>"
-		"$<$<CONFIG:RelWithDebInfo>:${basic-list-select_RELWITHDEBINFO_OWN_LINK_FLAGS}>"
+		"$<$<CONFIG:Debug>:${list-select_DEBUG_OWN_LINK_FLAGS}>"
+		"$<$<CONFIG:Release>:${list-select_RELEASE_OWN_LINK_FLAGS}>"
+		"$<$<CONFIG:MinSizeRel>:${list-select_MINSIZEREL_OWN_LINK_FLAGS}>"
+		"$<$<CONFIG:RelWithDebInfo>:${list-select_RELWITHDEBINFO_OWN_LINK_FLAGS}>"
 )
 
-target_compile_options( basic-list-select
+target_compile_options( list-select
 	PRIVATE 
-		"$<$<AND:$<CONFIG:Debug>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${basic-list-select_DEBUG_OWN_COMPILER_FLAGS}>"
-		"$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:${basic-list-select_DEBUG_OWN_CUDA_FLAGS}>"
-		"$<$<AND:$<CONFIG:Release>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${basic-list-select_RELEASE_OWN_COMPILER_FLAGS}>"
-		"$<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>:${basic-list-select_RELEASE_OWN_CUDA_FLAGS}>"
-		"$<$<AND:$<CONFIG:MinSizeRel>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${basic-list-select_MINSIZEREL_OWN_COMPILER_FLAGS}>"
-		"$<$<AND:$<CONFIG:MinSizeRel>,$<COMPILE_LANGUAGE:CUDA>>:${basic-list-select_MINSIZEREL_OWN_CUDA_FLAGS}>"
-		"$<$<AND:$<CONFIG:RelWithDebInfo>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${basic-list-select_RELWITHDEBINFO_OWN_COMPILER_FLAGS}>"
-		"$<$<AND:$<CONFIG:RelWithDebInfo>,$<COMPILE_LANGUAGE:CUDA>>:${basic-list-select_RELWITHDEBINFO_OWN_CUDA_FLAGS}>"
+		"$<$<AND:$<CONFIG:Debug>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${list-select_DEBUG_OWN_COMPILER_FLAGS}>"
+		"$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:${list-select_DEBUG_OWN_CUDA_FLAGS}>"
+		"$<$<AND:$<CONFIG:Release>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${list-select_RELEASE_OWN_COMPILER_FLAGS}>"
+		"$<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>:${list-select_RELEASE_OWN_CUDA_FLAGS}>"
+		"$<$<AND:$<CONFIG:MinSizeRel>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${list-select_MINSIZEREL_OWN_COMPILER_FLAGS}>"
+		"$<$<AND:$<CONFIG:MinSizeRel>,$<COMPILE_LANGUAGE:CUDA>>:${list-select_MINSIZEREL_OWN_CUDA_FLAGS}>"
+		"$<$<AND:$<CONFIG:RelWithDebInfo>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:${list-select_RELWITHDEBINFO_OWN_COMPILER_FLAGS}>"
+		"$<$<AND:$<CONFIG:RelWithDebInfo>,$<COMPILE_LANGUAGE:CUDA>>:${list-select_RELWITHDEBINFO_OWN_CUDA_FLAGS}>"
 )
 
-target_compile_features( basic-list-select
+target_compile_features( list-select
 	PRIVATE 
 		cxx_std_${PROJECT_CXX_LANGUAGE_MINIMUM_STANDARD}
 )
 
-set_target_properties( basic-list-select PROPERTIES
+set_target_properties( list-select PROPERTIES
 	CXX_STANDARD_REQUIRED TRUE
 )
 
 if( TRUE )
+	gcmake_unaliased_target_name( ftxui::dom _UNALIASED_ftxui__dom )
+endif()
+if( TRUE )
 	gcmake_unaliased_target_name( ftxui::component _UNALIASED_ftxui__component )
 endif()
-target_link_libraries( basic-list-select_INTERNAL_RECEIVER_LIB 
+target_link_libraries( list-select_INTERNAL_RECEIVER_LIB 
 	INTERFACE
+		$<BUILD_INTERFACE:ftxui::dom> $<INSTALL_INTERFACE:${LOCAL_TOPLEVEL_PROJECT_NAME}::${_UNALIASED_ftxui__dom}>
 		$<BUILD_INTERFACE:ftxui::component> $<INSTALL_INTERFACE:${LOCAL_TOPLEVEL_PROJECT_NAME}::${_UNALIASED_ftxui__component}>
 )
-if( DEFINED TARGET_basic-list-select_INTERNAL_RECEIVER_LIB_INSTALL_MODE )
+if( DEFINED TARGET_list-select_INTERNAL_RECEIVER_LIB_INSTALL_MODE )
+	if( TRUE )
+		add_to_minimal_installs( ftxui::dom "${ftxui_RELATIVE_DEP_PATH}")
+	endif()
 	if( TRUE )
 		add_to_minimal_installs( ftxui::component "${ftxui_RELATIVE_DEP_PATH}")
 	endif()
 endif()
-target_link_libraries( basic-list-select PRIVATE basic-list-select_INTERNAL_RECEIVER_LIB )
+target_link_libraries( list-select PRIVATE list-select_INTERNAL_RECEIVER_LIB )
 endif()
 
 # ////////////////////////////////////////////////////////////////////////////////
