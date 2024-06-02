@@ -7,6 +7,13 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
+struct PromptResult {
+  bool wasKilled;
+  int indexSelected;
+};
+
+PromptResult doPrompt(const std::string& prompt, const std::vector<std::string>& optionList);
+
 int main(int argc, char** argv)
 {
   if (argc < 3) {
@@ -17,10 +24,20 @@ int main(int argc, char** argv)
 
   std::vector<std::string> optionList;
 
-  for (int i = 1; i < argc; ++i) {
+  for (int i = 2; i < argc; ++i) {
     optionList.push_back(argv[i]);
   }
 
+  const auto [wasKilled, indexSelected] = doPrompt(argv[1], optionList);
+
+  if (!wasKilled) {
+    std::cout << optionList[static_cast<size_t>(indexSelected)] << '\n';
+  }
+
+  return EXIT_SUCCESS;
+}
+
+PromptResult doPrompt(const std::string& prompt, const std::vector<std::string>& optionList) {
   const size_t longestString =
       std::max_element(optionList.cbegin(),
                        optionList.cend(),
@@ -29,12 +46,12 @@ int main(int argc, char** argv)
                        })
           ->length();
 
-  int  selected = 0;
+  int  selectedIndex = 0;
   auto screen   = ftxui::ScreenInteractive::TerminalOutput(std::cerr);
 
   bool wasKilled = true;
 
-  auto menu = ftxui::Menu(&optionList, &selected) | ftxui::frame
+  auto menu = ftxui::Menu(&optionList, &selectedIndex) | ftxui::frame
               | ftxui::size(ftxui::HEIGHT, ftxui::LESS_THAN, 10) | ftxui::border
               | ftxui::size(ftxui::WIDTH,
                             ftxui::LESS_THAN,
@@ -51,9 +68,8 @@ int main(int argc, char** argv)
 
   screen.Loop(menu);
 
-  if (!wasKilled) {
-    std::cout << optionList[static_cast<size_t>(selected)] << '\n';
-  }
-
-  return EXIT_SUCCESS;
+  return {
+    wasKilled,
+    selectedIndex
+  };
 }
