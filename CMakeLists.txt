@@ -73,7 +73,7 @@ list( APPEND CMAKE_MODULE_PATH "${TOPLEVEL_PROJECT_DIR}/cmake/modules" )
 set( LOCAL_BUILD_SHARED_LIBS_DOC_STRING "Build compiled libraries as SHARED when their type is not explicitly specified" )
 set( LOCAL_BUILD_STATIC_LIBS_DOC_STRING "Build compiled libraries as STATIC when their type is not explicitly specified" )
 set( LOCAL_CMAKE_BUILD_TYPE_DOC_STRING "Which project configuration to build" )
-initialize_lib_type_options( SHARED )
+initialize_lib_type_options( STATIC )
 option( BUILD_TESTING "Build the testing tree for all non-GCMake projects. Testing trees for GCMake projects are enabled per-project. For example, this project uses the ${LOCAL_TOPLEVEL_PROJECT_NAME}_BUILD_TESTS variable." OFF )
 
 initialize_build_tests_var()

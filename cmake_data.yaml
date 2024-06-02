@@ -23,6 +23,7 @@ output:
       - ftxui::{ component, dom }
 
 global_properties:
+  default_compiled_lib_type: Static
   ipo_enabled_by_default_for:
     - Release
     - MinSizeRel
