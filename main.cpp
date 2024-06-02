@@ -7,12 +7,14 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-struct PromptResult {
+struct PromptResult
+{
   bool wasKilled;
-  int indexSelected;
+  int  indexSelected;
 };
 
-PromptResult doPrompt(const std::string& prompt, const std::vector<std::string>& optionList);
+PromptResult doPrompt(const std::string&              prompt,
+                      const std::vector<std::string>& optionList);
 
 int main(int argc, char** argv)
 {
@@ -37,26 +39,24 @@ int main(int argc, char** argv)
   return EXIT_SUCCESS;
 }
 
-PromptResult doPrompt(const std::string& prompt, const std::vector<std::string>& optionList) {
-  const size_t longestString =
+PromptResult doPrompt(const std::string&              prompt,
+                      const std::vector<std::string>& optionList)
+{
+  const size_t longestString = std::max(
+      prompt.length(),
       std::max_element(optionList.cbegin(),
                        optionList.cend(),
                        [](const std::string& s1, const std::string& s2) {
                          return s1.length() < s2.length();
                        })
-          ->length();
+          ->length());
 
   int  selectedIndex = 0;
-  auto screen   = ftxui::ScreenInteractive::TerminalOutput(std::cerr);
+  auto screen        = ftxui::ScreenInteractive::TerminalOutput(std::cerr);
 
   bool wasKilled = true;
 
-  auto menu = ftxui::Menu(&optionList, &selectedIndex) | ftxui::frame
-              | ftxui::size(ftxui::HEIGHT, ftxui::LESS_THAN, 10) | ftxui::border
-              | ftxui::size(ftxui::WIDTH,
-                            ftxui::LESS_THAN,
-                            static_cast<int>(longestString) + 5)
-              | ftxui::vscroll_indicator
+  auto menu = ftxui::Menu(&optionList, &selectedIndex)
               | ftxui::CatchEvent([&wasKilled, &screen](ftxui::Event event) {
                   if (event == ftxui::Event::Return) {
                     wasKilled = false;
@@ -66,10 +66,15 @@ PromptResult doPrompt(const std::string& prompt, const std::vector<std::string>&
                   return false;
                 });
 
-  screen.Loop(menu);
+  auto window = ftxui::Renderer(menu, [&menu, &prompt, &longestString] {
+    return ftxui::window(ftxui::text(prompt), menu->Render())
+           | ftxui::size(ftxui::HEIGHT, ftxui::LESS_THAN, 10)
+           | ftxui::size(ftxui::WIDTH,
+                         ftxui::LESS_THAN,
+                         static_cast<int>(longestString) + 5)
+           | ftxui::vscroll_indicator;
+  });
 
-  return {
-    wasKilled,
-    selectedIndex
-  };
+  screen.Loop(window);
+  return {wasKilled, selectedIndex};
 }
