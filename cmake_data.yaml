@@ -1,0 +1,112 @@
+name: basic-list-select
+include_prefix: BASIC_LIST_SELECT
+description: Simple CLI for selecting a single item from a list
+vendor: scupit
+version: 0.0.1
+
+default_build_type: Debug
+
+languages:
+  cpp:
+    min_standard: "17"
+
+supported_compilers:
+  - GCC
+  - Clang
+  - MSVC
+
+output:
+  basic-list-select:
+    output_type: Executable
+    entry_file: main.cpp
+    link:
+      - ftxui::component
+
+global_properties:
+  ipo_enabled_by_default_for:
+    - Release
+    - MinSizeRel
+    - RelWithDebInfo
+
+predefined_dependencies:
+  ftxui:
+    git_tag: v5.0.0
+
+build_configs:
+  Debug:
+    GCC:
+      compiler_flags:
+        - -O0
+        - -g
+        - -Wall
+        - -Wextra
+        - -Wconversion
+        - -Wuninitialized
+        - -pedantic
+        - -pedantic-errors
+    Clang:
+      compiler_flags:
+        - -O0
+        - -g
+        - -Wall
+        - -Wextra
+        - -Wconversion
+        - -Wuninitialized
+        - -pedantic
+        - -pedantic-errors
+    MSVC:
+      compiler_flags:
+        - /Od
+        - /W4
+        - /DEBUG
+        - /RTC1
+  Release:
+    AllCompilers:
+      defines:
+        - NDEBUG
+    GCC:
+      compiler_flags:
+        - -O3
+      linker_flags:
+        - -s
+    Clang:
+      compiler_flags:
+        - -O3
+      linker_flags:
+        - -s
+    MSVC:
+      compiler_flags:
+        - /O2
+  MinSizeRel:
+    AllCompilers:
+      defines:
+        - NDEBUG
+    GCC:
+      compiler_flags:
+        - -Os
+      linker_flags:
+        - -s
+    Clang:
+      compiler_flags:
+        - -Os
+      linker_flags:
+        - -s
+    MSVC:
+      compiler_flags:
+        - /O1
+  RelWithDebInfo:
+    AllCompilers:
+      defines:
+        - NDEBUG
+    GCC:
+      compiler_flags:
+        - -O2
+        - -g
+    Clang:
+      compiler_flags:
+        - -O2
+        - -g
+    MSVC:
+      compiler_flags:
+        - /O2
+        - /DEBUG

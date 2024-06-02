@@ -1,0 +1,11 @@
+.cache/
+.vscode/
+.mypy_cache/
+
+.gcmake/
+build/
+dep/
+docs/api/
+
+Doxyfile
+conf.py
